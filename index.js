@@ -40,12 +40,12 @@ app.use(express.static("public"));
 //     await mongoose.connect('mongodb://localhost:27017/competetion',{useNewUrlParser:true}); 
 // }
 
-// const usersSchema = new mongoose.Schema({
-//     name: String,
-//     email: String
-// });
+const usersSchema = new mongoose.Schema({
+    name: String,
+    email: String
+});
 
-// const User = mongoose.model('User',usersSchema);
+const User = mongoose.model('User',usersSchema);
 
 // const user1 = new User ({
 //     name:"Ashu",
@@ -85,6 +85,21 @@ app.get('/logout', (req, res) => {
 })
 
 
+
+// TeamCreation model
+
+const teamSchema = new mongoose.Schema({
+    teamName : String,
+    email1lead : String,  //Team leader email
+    email2 : String,
+    email3 : String,
+    email4 : String, 
+})
+
+const Team = mongoose.model("Team", teamSchema)
+
+
+
 //competition
 app.get("/competition",(req,res)=>{
     res.render("index");
@@ -112,3 +127,53 @@ app.post("/competition",async (req,res)=>{
 app.listen(3000, function() {
     console.log("Server started on port 3000");
 });
+
+app.post('/create-team', async (req,res) => {
+try{
+    const TEAMNAME = req.body.teamName;
+    const EMAIL1 = req.body.email1;
+    const EMAIL2 = req.body.email2;
+    const EMAIL3 = req.body.email3;
+    const EMAIL4 = req.body.email4;
+
+    const team1 = new Team ({
+        teamName : TEAMNAME,
+        email1 : EMAIL1,
+        email2 : EMAIL2,
+        email3 : EMAIL3,
+        email4 : EMAIL4,
+    })
+
+    const teamNameExists = await Team.findOne({teamName:TEAMNAME})
+    if(!teamNameExists)
+    {
+        const email1Exists =await Team.findOne({email1:EMAIL1});
+        const email2Exists =await Team.findOne({email2:EMAIL2});
+        const email3Exists =await Team.findOne({email3:EMAIL3});
+        const email4Exists =await Team.findOne({email4:EMAIL4});
+        if(email1Exists && email2Exists && email3Exists && email4Exists)
+        {
+            console.log("Emails verified");
+            team1.save();
+        }
+        else
+        {
+            console.log('One or more emails from your team are not registered')
+        }
+    }
+    else{
+        res.send('team name already exists')
+    }
+}
+
+catch(e){
+    console.log(e);
+    res.send('ERROR')
+}
+
+})
+
+
+app.get('/create-team', (req, res) => {
+    res.render('team')
+})
