@@ -173,6 +173,17 @@ try{
             console.log("Emails verified");
             team1.save();
         }
+        else if(email1Exists && email2Exists && email3Exists)
+        {
+            console.log("Team consists 3 members. All emails verified")
+            team1.save();
+        }
+        else if(email1Exists && email2Exists)
+        {
+            console.log("Team consists 2 members. All emails verified")
+            team1.save();
+        }
+
         else
         {
             console.log('One or more emails from your team are not registered')
