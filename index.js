@@ -64,7 +64,7 @@ app.get('/failed', (req, res) => {
 })
 // In this route you can see that if the user is logged in u can acess his info in: req.user
 app.get('/good', isLoggedIn, (req, res) =>{
-    res.render("/profile",{name:req.user.displayName,pic:req.user.photos[0].value,email:req.user.emails[0].value})
+    res.render("profile",{name:req.user.displayName,pic:req.user.photos[0].value,email:req.user.emails[0].value})
 })
 
 // Auth Routes
@@ -74,7 +74,7 @@ app.get('/google/callback', passport.authenticate('google', { failureRedirect: '
   function(req, res) {
     // Successful authentication, redirect home.
     
-    res.redirect('/competition');
+    res.redirect('/good');
   }
 );
 
@@ -90,7 +90,7 @@ app.get('/logout', (req, res) => {
 
 const teamSchema = new mongoose.Schema({
     teamName : String,
-    email1lead : String,  //Team leader email
+    email1 : String,  //Team leader email
     email2 : String,
     email3 : String,
     email4 : String, 
@@ -98,6 +98,22 @@ const teamSchema = new mongoose.Schema({
 
 const Team = mongoose.model("Team", teamSchema)
 
+
+// Registration model
+const registerSchema = new mongoose.Schema({
+    name : {type : String, required : true, },
+    email : {type : String, required : true, unique : true},
+    phoneNo : {type : String, required : true, unique : true},
+    country : {type : String, required : true},
+    city : {type : String, required : true},
+    resedentialAddress : {type : String, required : true},
+    instituteName : {type : String, required : true},
+    instituteAddress : {type : String, required : true},
+    instituteAreaPincode : {type : String, required : true},
+    yearOfStudy : {type : Number, required : true},
+})
+
+const Register = mongoose.model("Register", registerSchema)
 
 
 //competition
@@ -124,9 +140,10 @@ app.post("/competition",async (req,res)=>{
 
 })
 
-app.listen(3000, function() {
-    console.log("Server started on port 3000");
-});
+app.get('/create-team', (req, res) => {
+    res.render('team')
+})
+
 
 app.post('/create-team', async (req,res) => {
 try{
@@ -173,7 +190,54 @@ catch(e){
 
 })
 
-
-app.get('/create-team', (req, res) => {
-    res.render('team')
+app.get('/registration', (req, res) => {
+    res.send('registration')
 })
+
+app.post('/registration', async (req, res) => {
+    const NAME = req.body.fullName;
+    const EMAIL = req.body.email;
+    const PHONENO = req.body.phone;
+    const COUNTRY = req.body.country;
+    const CITY = req.body.city;
+    const RESEDENTIALADDRESS = req.body.residentialAddress;
+    const INSTITUTENAME = req.body.instituteName;
+    const INSTITUTEADDRESS = req.body.instituteAddress;
+    const INSTITUTEAREAPINCODE = req.body.institutePincode;
+    const YEAROFSTUDY = req.body.yearOfStudy;
+
+    const info1 = new Register({
+        name : NAME,
+        email : EMAIL,
+        phoneNo : PHONENO,
+        country : COUNTRY,
+        city : CITY,
+        resedentialAddress : RESEDENTIALADDRESS,
+        instituteName : INSTITUTENAME,
+        instituteAddress : INSTITUTEADDRESS,
+        instituteAreaPincode : INSTITUTEAREAPINCODE,
+        yearOfStudy : YEAROFSTUDY,
+    })
+
+    const userEmailExists = await User.findOne({email: EMAIL})
+    const emailExists = await Register.findOne({email:EMAIL})
+    if(userEmailExists)
+    {
+        if(emailExists)
+        {
+            res.send('Email already registered')
+        }
+        else{
+            console.log('Succesfully registered')
+            info1.save()
+            res.redirect('/competitions')
+        }
+    }
+
+})
+
+
+
+app.listen(3000, function() {
+    console.log("Server started on port 3000");
+});
