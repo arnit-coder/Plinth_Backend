@@ -5,6 +5,9 @@ const bodyParser = require("body-parser");
 const mongoose= require('mongoose');
 const passport = require('passport');
 const cookieSession = require('cookie-session')
+const Register = require('./models/registrationModel')
+const User = require('./models/userModel')
+const Team = require('./models/teamModel')
 
 require('./passport-setup');
 
@@ -34,24 +37,14 @@ const isLoggedIn = (req, res, next) => {
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-// main().catch(err => console.log(err));
+main().catch(err => console.log(err));
 
-// async function main() {
-//     await mongoose.connect('mongodb://localhost:27017/competetion',{useNewUrlParser:true}); 
-// }
+async function main() {
+    await mongoose.connect('mongodb://localhost:27017/competetion',{useNewUrlParser:true}); 
+}
 
-const usersSchema = new mongoose.Schema({
-    name: String,
-    email: String
-});
 
-const User = mongoose.model('User',usersSchema);
 
-// const user1 = new User ({
-//     name:"Ashu",
-//     email:"asdf@gmail.com"
-// })
-// user1.save();
 
 
 
@@ -84,36 +77,6 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 })
 
-
-
-// TeamCreation model
-
-const teamSchema = new mongoose.Schema({
-    teamName : String,
-    email1 : String,  //Team leader email
-    email2 : String,
-    email3 : String,
-    email4 : String, 
-})
-
-const Team = mongoose.model("Team", teamSchema)
-
-
-// Registration model
-const registerSchema = new mongoose.Schema({
-    name : {type : String, required : true, },
-    email : {type : String, required : true, unique : true},
-    phoneNo : {type : String, required : true, unique : true},
-    country : {type : String, required : true},
-    city : {type : String, required : true},
-    residentialAddress : {type : String, required : true},
-    instituteName : {type : String, required : true},
-    instituteAddress : {type : String, required : true},
-    instituteAreaPincode : {type : String, required : true},
-    yearOfStudy : {type : Number, required : true},
-})
-
-const Register = mongoose.model("Register", registerSchema)
 
 
 //competition
