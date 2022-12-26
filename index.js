@@ -81,7 +81,8 @@ app.get('/logout', (req, res) => {
 
 //competition
 app.get("/competition",(req,res)=>{
-    res.render("index");
+    // res.render("index");
+    res.send("Succesfully registered")
 })
 
 app.post("/competition",async (req,res)=>{
@@ -104,7 +105,7 @@ app.post("/competition",async (req,res)=>{
 })
 
 app.get('/create-team', (req, res) => {
-    res.render('team')
+    res.send('Create a team')
 })
 
 
