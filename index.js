@@ -1,5 +1,5 @@
 // Server side js
-require('dotenv').config()
+const dotenv = require('dotenv').config()
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose= require('mongoose');
@@ -8,40 +8,47 @@ const cookieSession = require('cookie-session')
 const Register = require('./models/registrationModel')
 const User = require('./models/userModel')
 const Team = require('./models/teamModel')
+const session = require('express-session')
 
 require('./passport-setup');
 
 const app = express();
+
+function isLoggedIn(req, res, next) {
+    // console.log(req.user)
+    req.user ? next() : res.sendStatus(401);
+  }
+
+
+app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());  
 
 app.set('view engine', 'ejs');
 
 //oauth work
 
 // For an actual app you should configure this with an expiration time, better keys, proxy and secure
-app.use(cookieSession({
-    name: 'tuto-session',
-    keys: ['key1', 'key2']
-}))
+// app.use(cookieSession({
+//     name: 'tuto-session',
+//     keys: ['key1', 'key2']
+// }))
 
 // Auth middleware that checks if the user is logged in
-const isLoggedIn = (req, res, next) => {
-    if (req.user) {
-        next();
-    } else {
-        res.sendStatus(401);
-    }
-}
 
 
 
-app.use(bodyParser.urlencoded({extended: true}));
+// app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
+app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
+app.use(passport.initialize());
+app.use(passport.session());
 
-main().catch(err => console.log(err));
+// main().catch(err => console.log(err));
 
-async function main() {
-    await mongoose.connect('mongodb://localhost:27017/competetion',{useNewUrlParser:true}); 
-}
+// async function main() {
+//     await mongoose.connect('mongodb://localhost:27017/competetion',{useNewUrlParser:true}); 
+// }
 
 
 
@@ -49,33 +56,42 @@ async function main() {
 
 
 //register
-app.get("/",(req,res)=>{
-    res.render("oauth")
-})
-app.get('/failed', (req, res) => {
-    res.send('You Failed to log in!')
-})
+app.get('/', (req, res) => {
+    res.send('<a href="/auth/google"><h1>Authenticate with Google</h1></a>');
+  });
+
+
+  app.get('/auth/google/failure', (req, res) => {
+    res.send('Failed to authenticate..');
+  });
+  
 // In this route you can see that if the user is logged in u can acess his info in: req.user
-app.get('/good', isLoggedIn, (req, res) =>{
-    res.render("profile",{name:req.user.displayName,pic:req.user.photos[0].value,email:req.user.emails[0].value})
-})
+// app.get('/good', isLoggedIn, (req, res) =>{
+//     res.render("profile",{name:req.user.displayName,pic:req.user.photos[0].value,email:req.user.emails[0].value})
+// })
 
 // Auth Routes
-app.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google',
+  passport.authenticate('google', { scope: [ 'email', 'profile' ] }
+));
 
-app.get('/google/callback', passport.authenticate('google', { failureRedirect: '/failed' }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    
-    res.redirect('/good');
-  }
+
+app.get( '/auth/google/callback',
+  passport.authenticate( 'google', {
+    successRedirect: '/protected',
+    failureRedirect: '/auth/google/failure'
+  })
 );
 
-app.get('/logout', (req, res) => {
-    req.session = null;
+app.get('/protected', isLoggedIn, (req, res) => {
+    res.send(`Hello ${req.user.displayName}`);
+  });
+
+  app.get('/logout', (req, res) => {
     req.logout();
-    res.redirect('/');
-})
+    req.session.destroy();
+    res.send('Goodbye!');
+  });
 
 
 
