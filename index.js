@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose= require('mongoose');
 const passport = require('passport');
+const cors = require('cors')
 const cookieSession = require('cookie-session')
 const Register = require('./models/registrationModel')
 const userModel = require('./models/userModel')
@@ -26,17 +27,8 @@ app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());  
 
+
 app.set('view engine', 'ejs');
-
-//oauth work
-
-// For an actual app you should configure this with an expiration time, better keys, proxy and secure
-// app.use(cookieSession({
-//     name: 'tuto-session',
-//     keys: ['key1', 'key2']
-// }))
-
-// Auth middleware that checks if the user is logged in
 
 
 
@@ -48,18 +40,18 @@ app.use(passport.session());
 
 
 
-const db = 'mongodb://localhost:27017/auth'
-mongoose.connect(
-  db,
-  {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
+// const db = 'mongodb://localhost:27017/auth'
+// mongoose.connect(
+//   db,
+//   {
+//     useUnifiedTopology: true,
+//     useNewUrlParser: true,
 
-  },
-  (error) => {
-    if (error) console.log(error)
-  }
-)
+//   },
+//   (error) => {
+//     if (error) console.log(error)
+//   }
+// )
 
 
 
@@ -70,58 +62,68 @@ app.get('/', (req, res) => {
   });
 
 
-  app.get('/auth/google/failure', (req, res) => {
-    res.send('Failed to authenticate..');
-  });
-  
-// In this route you can see that if the user is logged in u can acess his info in: req.user
-// app.get('/good', isLoggedIn, (req, res) =>{
-//     res.render("profile",{name:req.user.displayName,pic:req.user.photos[0].value,email:req.user.emails[0].value})
-// })
-
-// Auth Routes
-app.get('/auth/google',
-  passport.authenticate('google', { scope: [ 'email', 'profile' ] }
-));
-userData()
-
-function userData()
+function userLogin()
 {
-    app.post('send-user-data', async(req, res)=>{
-        try{
-            const ID = req.user.id;
-            const EMAIL = req.user.email;
-            const FIRSTNAME = req.user.name.givenName;
-            const LASTNAME = req.user.name.familyName;
-            const PROFILEPHOTO = req.user.picture;
-    
-            const user1 = new userModel({
-                id : ID,
-                email : EMAIL,
-                firstName : FIRSTNAME,
-                lastName : LASTNAME,
-                profilePhoto : PROFILEPHOTO,
-            })
-            const emailExists = await userModel.findOne({email : EMAIL})
-            if(!emailExists)
-            {
-                console.log(user1);
-                user1.save();
-            }
-            else{
-                console.log("EMAIL ALREADY EXISTS")
-                res.send('details saved')
-            }
-    
-    
+    app.get('/auth/google',
+    passport.authenticate('google', { scope: [ 'email', 'profile' ] }
+  ));
+}
+
+
+function sendData()
+{
+    app.post('/send-user-data', async(req, res)=>{
+        const ID = req.user.id;
+        const EMAIL = req.user.email;
+        const FIRSTNAME = req.user.name.givenName;
+        const LASTNAME = req.user.name.familyName;
+        const PROFILEPHOTO = req.user.picture;
+        
+        const user1 = new userModel({
+            id : ID,
+            email : EMAIL,
+            firstName : FIRSTNAME,
+            lastName : LASTNAME,
+            profilePhoto : PROFILEPHOTO,
+        })
+        const emailExists = await userModel.findOne({email : EMAIL})
+        if(!emailExists)
+        {
+            console.log(user1);
+            user1.save();
         }
-        catch(e){
-            console.log(e);
+        else{
+            console.log("EMAIL ALREADY EXISTS")
+            res.send('details saved')
         }
+            
     })
 }
 
 
+
+userLogin();
+
+if(userLogin())
+{
+    sendData();
+}
+
+
+  app.get('/auth/google/failure', (req, res) => {
+    res.send('Failed to authenticate..');
+  });
+  
+
+
+
+
+
+
+// if(userLogin())
+// {
+//     userData();
+// }
 
 app.get( '/auth/google/callback',
   passport.authenticate( 'google', {
@@ -133,7 +135,7 @@ app.get( '/auth/google/callback',
 
 
 app.get('/protected', isLoggedIn, (req, res) => {
-    res.send(`Hello ${req.user.name.givenName}`);
+    res.redirect('http://localhost:3001/competitions')
   });
 
 
