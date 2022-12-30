@@ -6,7 +6,7 @@ const mongoose= require('mongoose');
 const passport = require('passport');
 const cookieSession = require('cookie-session')
 const Register = require('./models/registrationModel')
-const User = require('./models/userModel')
+const userModel = require('./models/userModel')
 const Team = require('./models/teamModel')
 const session = require('express-session')
 
@@ -15,7 +15,9 @@ require('./passport-setup');
 const app = express();
 
 function isLoggedIn(req, res, next) {
-    // console.log(req.user)
+    console.log(req.user)
+    console.log(req.user.picture)
+    console.log(req.user.name.givenName)
     req.user ? next() : res.sendStatus(401);
   }
 
@@ -44,13 +46,20 @@ app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// main().catch(err => console.log(err));
-
-// async function main() {
-//     await mongoose.connect('mongodb://localhost:27017/competetion',{useNewUrlParser:true}); 
-// }
 
 
+const db = 'mongodb://localhost:27017/auth'
+mongoose.connect(
+  db,
+  {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+
+  },
+  (error) => {
+    if (error) console.log(error)
+  }
+)
 
 
 
@@ -74,6 +83,44 @@ app.get('/', (req, res) => {
 app.get('/auth/google',
   passport.authenticate('google', { scope: [ 'email', 'profile' ] }
 ));
+userData()
+
+function userData()
+{
+    app.post('send-user-data', async(req, res)=>{
+        try{
+            const ID = req.user.id;
+            const EMAIL = req.user.email;
+            const FIRSTNAME = req.user.name.givenName;
+            const LASTNAME = req.user.name.familyName;
+            const PROFILEPHOTO = req.user.picture;
+    
+            const user1 = new userModel({
+                id : ID,
+                email : EMAIL,
+                firstName : FIRSTNAME,
+                lastName : LASTNAME,
+                profilePhoto : PROFILEPHOTO,
+            })
+            const emailExists = await userModel.findOne({email : EMAIL})
+            if(!emailExists)
+            {
+                console.log(user1);
+                user1.save();
+            }
+            else{
+                console.log("EMAIL ALREADY EXISTS")
+                res.send('details saved')
+            }
+    
+    
+        }
+        catch(e){
+            console.log(e);
+        }
+    })
+}
+
 
 
 app.get( '/auth/google/callback',
@@ -83,42 +130,21 @@ app.get( '/auth/google/callback',
   })
 );
 
+
+
 app.get('/protected', isLoggedIn, (req, res) => {
-    res.send(`Hello ${req.user.displayName}`);
+    res.send(`Hello ${req.user.name.givenName}`);
   });
 
-  app.get('/logout', (req, res) => {
+
+app.get('/logout', (req, res) => {
     req.logout();
     req.session.destroy();
     res.send('Goodbye!');
-  });
+ });
 
 
 
-//competition
-app.get("/competition",(req,res)=>{
-    // res.render("index");
-    res.send("Succesfully registered")
-})
-
-app.post("/competition",async (req,res)=>{
-    const NAME = req.body.userName;
-    const EMAIL = req.body.userEmail;
-
-    const userExists =await User.findOne({email:EMAIL});
-
-    const user1 = new User ({
-        name : NAME,
-        email : EMAIL
-    })
-
-    if(userExists){
-        console.log("user already exists");
-    }else{
-        user1.save();
-    }
-
-})
 
 app.get('/create-team', (req, res) => {
     res.send('Create a team')
