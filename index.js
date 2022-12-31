@@ -69,7 +69,7 @@ function userLogin()
   ));
 }
 
-
+userLogin();
 
 function sendData()
 {
@@ -100,10 +100,9 @@ function sendData()
             
     })
 }
-userLogin();
 
 if(userLogin()){
-    sendData();
+    sendData()
 }
 
 
