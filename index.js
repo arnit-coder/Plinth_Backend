@@ -70,6 +70,7 @@ function userLogin()
 }
 
 
+
 function sendData()
 {
     app.post('/send-user-data', async(req, res)=>{
@@ -99,12 +100,12 @@ function sendData()
             
     })
 }
+userLogin();
 
-
-
-userLogin().then(() => {
+if(userLogin()){
     sendData();
-})
+}
+
 
 
   app.get('/auth/google/failure', (req, res) => {
