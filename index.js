@@ -40,18 +40,18 @@ app.use(passport.session());
 
 
 
-// const db = 'mongodb://localhost:27017/auth'
-// mongoose.connect(
-//   db,
-//   {
-//     useUnifiedTopology: true,
-//     useNewUrlParser: true,
+const db = 'mongodb://localhost:27017/auth'
+mongoose.connect(
+  db,
+  {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
 
-//   },
-//   (error) => {
-//     if (error) console.log(error)
-//   }
-// )
+  },
+  (error) => {
+    if (error) console.log(error)
+  }
+)
 
 
 
@@ -102,12 +102,9 @@ function sendData()
 
 
 
-userLogin();
-
-if(userLogin())
-{
+userLogin().then(() => {
     sendData();
-}
+})
 
 
   app.get('/auth/google/failure', (req, res) => {
@@ -118,12 +115,6 @@ if(userLogin())
 
 
 
-
-
-// if(userLogin())
-// {
-//     userData();
-// }
 
 app.get( '/auth/google/callback',
   passport.authenticate( 'google', {
