@@ -40,18 +40,18 @@ app.use(passport.session());
 
 
 
-const db = 'mongodb://localhost:27017/auth'
-mongoose.connect(
-  db,
-  {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
+    const db = 'mongodb://localhost:27017/auth'
+    mongoose.connect(
+      db,
+      {
+        useUnifiedTopology: true,
+        useNewUrlParser: true,
 
-  },
-  (error) => {
-    if (error) console.log(error)
-  }
-)
+      },
+      (error) => {
+        if (error) console.log(error)
+      }
+    )
 
 
 
@@ -126,14 +126,16 @@ app.get( '/auth/google/callback',
 
 
 app.get('/protected', isLoggedIn, (req, res) => {
-    res.redirect('http://localhost:3001/competitions')
+    let username=req.user.given_name+" "+req.user.family_name
+    let useremail=req.user.sub
+    res.redirect(`https://plinth2k23.netlify.app/competitions/${username}/${useremail}`)
   });
 
 
 app.get('/logout', (req, res) => {
     req.logout();
     req.session.destroy();
-    res.send('Goodbye!');
+    res.redirect(`https://plinth2k23.netlify.app/`)
  });
 
 
