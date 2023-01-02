@@ -148,7 +148,7 @@ app.get('/create-team', (req, res) => {
 
 
 
-app.post('/create-team', async (req,res) => {
+app.post('/create-team', urlencodedParser,async (req,res) => {
     try{
         const TEAMNAME = req.body.teamName;
         const EMAIL1 = req.body.email1;
