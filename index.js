@@ -27,7 +27,13 @@ app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());  
 
-
+app.use(
+	cors({
+		origin: "http://localhost:3001",
+		methods: "GET,POST,PUT,DELETE",
+		credentials: true,
+	})
+);
 app.set('view engine', 'ejs');
 
 
@@ -119,7 +125,7 @@ if(userLogin()){
 
 app.get( '/auth/google/callback',
   passport.authenticate( 'google', {
-    successRedirect: '/protected',
+    successRedirect: 'http://localhost:3001/competitions',
     failureRedirect: '/auth/google/failure'
   })
 );
@@ -127,16 +133,17 @@ app.get( '/auth/google/callback',
 
 
 app.get('/protected', isLoggedIn, (req, res) => {
-    let username=req.user.given_name+" "+req.user.family_name
-    let useremail=req.user.sub
-    res.redirect(`https://plinth2k23.netlify.app/competitions/${username}/${useremail}`)
+    // let username=req.user.given_name+" "+req.user.family_name
+    // let useremail=req.user.sub
+    res.send(req.user)
+    // res.redirect(`http://localhost:3001/competitions/${username}/${useremail}`)
   });
 
 
 app.get('/logout', (req, res) => {
     req.logout();
     req.session.destroy();
-    res.redirect(`https://plinth2k23.netlify.app/`)
+    res.redirect(`http://localhost:3001/`)
  });
 
 
