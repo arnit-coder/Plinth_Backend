@@ -38,7 +38,11 @@ app.set('view engine', 'ejs');
 
 
 
-// app.use(bodyParser.urlencoded({extended: true}));
+// create application/json parser
+var jsonParser = bodyParser.json()
+ 
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 app.use(express.static("public"));
 app.use(session({ secret: 'cats', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
@@ -171,6 +175,7 @@ try{
     })
 
     const teamNameExists = await Team.findOne({teamName:TEAMNAME})
+
     if(!teamNameExists)
     {
         const email1Exists =await Team.findOne({email1:EMAIL1});
@@ -214,7 +219,8 @@ app.get('/registration', (req, res) => {
     res.send('registration')
 })
 
-app.post('/registration', async (req, res) => {
+app.post('/registration',urlencodedParser, async (req, res) => {
+    // console.log(req.body)
     const NAME = req.body.fullName;
     const EMAIL = req.body.email;
     const PHONENO = req.body.phone;
@@ -238,9 +244,9 @@ app.post('/registration', async (req, res) => {
         instituteAreaPincode : INSTITUTEAREAPINCODE,
         yearOfStudy : YEAROFSTUDY,
     })
-
     const userEmailExists = await User.findOne({email: EMAIL})
     const emailExists = await Register.findOne({email:EMAIL})
+
     if(userEmailExists)
     {
         if(emailExists)
@@ -250,7 +256,8 @@ app.post('/registration', async (req, res) => {
         else{
             console.log('Succesfully registered')
             info1.save()
-            res.redirect('/competitions')
+            res.send('Succesfully registered')
+            // res.redirect('/competitions')
         }
     }
 
