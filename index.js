@@ -15,9 +15,9 @@ require('./passport-setup');
 const app = express();
 
 function isLoggedIn(req, res, next) {
-    console.log(req.user)
-    console.log(req.user.picture)
-    console.log(req.user.name.givenName)
+    // console.log(req.user)
+    // console.log(req.user.picture)
+    // console.log(req.user.name.givenName)
     req.user ? next() : res.sendStatus(401);
   }
 
@@ -77,7 +77,7 @@ app.get('/auth/google',
 
 
 
-    app.post('/send-user-data', async(req, res)=>{
+    app.post('/auth/google', async(req, res)=>{
         const ID = req.user.id;
         const EMAIL = req.user.email;
         const FIRSTNAME = req.user.name.givenName;
@@ -201,47 +201,47 @@ app.post('/create-team', urlencodedParser,async (req,res) => {
             const email10Exists =await Team.findOne({email10:EMAIL10});
             if(email1Existsss&&email2Existsss&&email3Existsss&&email4Existsss&&email5Existsss&&email6Existsss&&email7Existsss&&email8Existsss&&email9Existsss&&email10Existsss)
             {
-                if(email1Exists && email2Exists && email3Exists && email4Exists && email5Exists && email6Exists && email7Exists && email8Exists)
+                if(!email1Exists && !email2Exists && !email3Exists && !email4Exists && !email5Exists && !email6Exists && !email7Exists && !email8Exists)
                 {
                     console.log("Emails verified");
                     team1.save();
                 }
-                else if(email1Exists && email2Exists && email3Exists && email4Exists && email5Exists && email6Exists && email7Exists)
+                else if(!email1Exists && !email2Exists && !email3Exists && !email4Exists && !email5Exists && !email6Exists && !email7Exists)
                 {
                     console.log("Team consists 7 members. All emails verified")
                     team1.save();
                 }
-                else if(email1Exists && email2Exists && email3Exists && email4Exists && email5Exists && email6Exists)
+                else if(!email1Exists && !email2Exists && !email3Exists && !email4Exists && !email5Exists && !email6Exists)
                 {
                     console.log("Team consists 6 members. All emails verified")
                     team1.save();
                 }
     
-                else if(email1Exists && email2Exists && email3Exists && email4Exists && email5Exists)
+                else if(!email1Exists && !email2Exists && !email3Exists && !email4Exists && !email5Exists)
                 {
                     console.log("Team consists 5 members. All emails verified")
                     team1.save();
                 }
     
-                else if(email1Exists && email2Exists && email3Exists && email4Exists)
+                else if(!email1Exists && !email2Exists && !email3Exists && !email4Exists)
                 {
                     console.log("Team consists 4 members. All emails verified")
                     team1.save();
                 }
     
-                else if(email1Exists && email2Exists && email3Exists)
+                else if(!email1Exists && !email2Exists && !email3Exists)
                 {
                     console.log("Team consists 3 members. All emails verified")
                     team1.save();
                 }
     
-                else if(email1Exists && email2Exists)
+                else if(!email1Exists && !email2Exists)
                 {
                     console.log("Team consists 2 members. All emails verified")
                     team1.save();
                 }
     
-                else if(email1Exists)
+                else if(!email1Exists)
                 {
                     console.log("Only you are registered.Email verified")
                     team1.save();
