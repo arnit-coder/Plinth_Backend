@@ -9,7 +9,6 @@ const Register = require('./models/registrationModel')
 const userModel = require('./models/userModel')
 const Team = require('./models/teamModel')
 const session = require('express-session')
-
 require('./passport-setup');
 
 const app = express();
@@ -150,6 +149,7 @@ app.get('/create-team', (req, res) => {
 
 app.post('/create-team', urlencodedParser,async (req,res) => {
     try{
+        const EVENTNAME = req.body.eventName;
         const TEAMNAME = req.body.teamName;
         const EMAIL1 = req.body.email1;
         const EMAIL2 = req.body.email2;
@@ -163,6 +163,7 @@ app.post('/create-team', urlencodedParser,async (req,res) => {
         const EMAIL10 = req.body.email10;
     
         const team1 = new Team ({
+            eventName : EVENTNAME,
             teamName : TEAMNAME,
             email1 : EMAIL1,
             email2 : EMAIL2,

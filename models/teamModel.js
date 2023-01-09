@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 // TeamCreation model
 
 const teamSchema = new mongoose.Schema({
+    eventName : String,
     teamName : String,
     email1 : String,  //Team leader email
     email2 : String,
